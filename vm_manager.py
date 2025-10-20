@@ -5,28 +5,25 @@ import getpass
 from pyVim.connect import SmartConnect, Disconnect
 from pyVim import vim
 
-def read_config(filename='vcenter_config.txt'):
-    """Read vCenter hostname and username from file"""
+def read_config(filename='vconnect_starter.txt'):
+    """Read vCenter hostname and username from the starter file"""
     config = {}
     with open(filename, 'r') as f:
-        for line in f:
-            if '=' in line:
-                key, value = line.strip().split('=', 1)
-                config[key] = value
-    return config
-
-def connect_vcenter(host, user, password):
-    """Connect to vCenter and return service instance"""
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    context.verify_mode = ssl.CERT_NONE
+        content = f.read()
+        
+        # Extract host value
+        if 'host=' in content:
+            start = content.find('host=') + 6  # +6 to skip 'host="'
+            end = content.find('"', start)
+            config['vcenter_host'] = content[start:end]
+        
+        # Extract user value
+        if 'user=' in content:
+            start = content.find('user=') + 6  # +6 to skip 'user="'
+            end = content.find('"', start)
+            config['username'] = content[start:end]
     
-    si = SmartConnect(
-        host=host,
-        user=user,
-        pwd=password,
-        sslContext=context
-    )
-    return si
+    return config
 
 def get_session_info(si, vcenter_host):
     """Display current session information"""
@@ -79,17 +76,26 @@ def display_vm_info(vms):
 
 def main():
     # Requirement 1: Read config from file
-    print("Reading configuration...")
-    config = read_config('vcenter_config.txt')
+    print("Reading configuration from vconnect_starter.txt...")
+    config = read_config('vconnect_starter.txt')
     vcenter_host = config['vcenter_host']
     username = config['username']
     
-    # Get password securely
-    password = getpass.getpass(f"Enter password for {username}: ")
+    print(f"vCenter Host: {vcenter_host}")
+    print(f"Username: {username}")
+    
+    # Get password
+    password = getpass.getpass(f"\nEnter password for {username}: ")
     
     # Connect to vCenter
     print("Connecting to vCenter...")
-    si = connect_vcenter(vcenter_host, username, password)
+    s = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    s.verify_mode = ssl.CERT_NONE
+    
+    si = SmartConnect(host=vcenter_host, 
+                     user=username, 
+                     pwd=password, 
+                     sslContext=s)
     
     # Requirement 2: Display session information
     get_session_info(si, vcenter_host)
@@ -104,14 +110,14 @@ def main():
         choice = input("\nEnter your choice: ")
         
         if choice == '1':
-            # Requirement 3: Search function with no filter (all VMs)
+            # Requirement 3: Search with no filter (all VMs)
             vms = search_vms(si)
             # Requirement 4: Display VM metadata
             display_vm_info(vms)
         
         elif choice == '2':
+            # Requirement 3: Search with filter
             name_filter = input("Enter VM name to search: ")
-            # Requirement 3: Search function with filter
             vms = search_vms(si, name_filter)
             if vms:
                 # Requirement 4: Display VM metadata
