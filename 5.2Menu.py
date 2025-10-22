@@ -381,8 +381,33 @@ def main():
     
     option = 0
     
+   def main():
+    print("Reading configuration from vconnect_starter.txt...")
+    config = read_config('vconnect_starter.txt')
+    vcenter_host = config['vcenter_host']
+    username = config['username']
+    
+    print(f"vCenter Host: {vcenter_host}")
+    print(f"Username: {username}")
+    
+    password = getpass.getpass(f"\nEnter password for {username}: ")
+    
+    print("Connecting to vCenter...")
+    s = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    s.verify_mode = ssl.CERT_NONE
+    
+    si = SmartConnect(host=vcenter_host, 
+                     user=username, 
+                     pwd=password, 
+                     sslContext=s)
+    
+    aboutInfo = si.content.about
+    print(aboutInfo)
+    
+    get_session_info(si, vcenter_host)
+    
     # Main menu loop
-    while option != 0:
+    while True:
         print("\n[1] VCenter Info")
         print("[2] Session Details")
         print("[3] VM Details")
@@ -435,6 +460,15 @@ def main():
                 
                 vmmenu()
                 vmoption = int(input("Enter your option: "))
+        
+        elif option == 0:
+            print("Exiting program...")
+            Disconnect(si)
+            print("Goodbye!")
+            break
+        
+        else:
+            print("Invalid option. Please try again.")
 
 if __name__ == "__main__":
     main()
