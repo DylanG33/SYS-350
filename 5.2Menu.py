@@ -12,13 +12,11 @@ def read_config(filename='vconnect_starter.txt'):
     with open(filename, 'r') as f:
         content = f.read()
         
-        # Extract host value
         if 'host=' in content:
             start = content.find('host=') + 6
             end = content.find('"', start)
             config['vcenter_host'] = content[start:end]
         
-        # Extract user value
         if 'user=' in content:
             start = content.find('user=') + 6
             end = content.find('"', start)
@@ -72,7 +70,6 @@ def display_vm_info(vms):
         num_cpu = vm.config.hardware.numCPU
         memory_gb = vm.config.hardware.memoryMB / 1024
         
-        # Get IP address
         ip_address = "N/A"
         if vm.guest.ipAddress:
             ip_address = vm.guest.ipAddress
@@ -218,8 +215,7 @@ def delete_vm(si):
     
     vm = target_vms[0]
     
-    # Double confirmation for deletion
-    print(f"\n⚠️  WARNING: You are about to DELETE '{vm.name}' permanently!")
+    print(f"\n WARNING: You are about to DELETE '{vm.name}' permanently!")
     confirm1 = input(f"Are you ABSOLUTELY SURE you want to delete '{vm.name}'? (YES/NO): ").strip().upper()
     if confirm1 != 'YES':
         print("Cancelled.")
@@ -230,7 +226,6 @@ def delete_vm(si):
         print("VM name does not match. Deletion cancelled.")
         return
     
-    # Check if VM is powered off
     if vm.runtime.powerState != vim.VirtualMachinePowerState.poweredOff:
         print(f"\n{vm.name} must be powered off before deletion.")
         power_off = input("Power off now? (Y/N): ").strip().upper()
@@ -246,7 +241,6 @@ def delete_vm(si):
             print("Deletion cancelled.")
             return
     
-    # Delete the VM
     print(f"\nDeleting {vm.name} from disk...")
     try:
         task = vm.Destroy_Task()
@@ -273,7 +267,7 @@ def reconfigure_vm(si):
     vm = target_vms[0]
     
     if vm.runtime.powerState != vim.VirtualMachinePowerState.poweredOff:
-        print(f"\n⚠️  {vm.name} must be powered off to reconfigure hardware!")
+        print(f"\n {vm.name} must be powered off to reconfigure hardware!")
         print("Please power off the VM first.")
         return
     
