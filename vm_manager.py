@@ -6,7 +6,6 @@ from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
 
 def read_config(filename='vconnect_starter.txt'):
-    """Read vCenter hostname and username from the starter file"""
     config = {}
     with open(filename, 'r') as f:
         content = f.read()
@@ -127,4 +126,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
