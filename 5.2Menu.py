@@ -381,7 +381,7 @@ def main():
     
     option = 0
     
-   def main():
+def main():
     print("Reading configuration from vconnect_starter.txt...")
     config = read_config('vconnect_starter.txt')
     vcenter_host = config['vcenter_host']
