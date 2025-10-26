@@ -11,13 +11,11 @@ def read_config(filename='vconnect_starter.txt'):
     with open(filename, 'r') as f:
         content = f.read()
         
-        # Extract host value
         if 'host=' in content:
             start = content.find('host=') + 6  # +6 to skip 'host="'
             end = content.find('"', start)
             config['vcenter_host'] = content[start:end]
         
-        # Extract user value
         if 'user=' in content:
             start = content.find('user=') + 6  # +6 to skip 'user="'
             end = content.find('"', start)
@@ -50,7 +48,6 @@ def search_vms(si, name_filter=None):
     vms = container_view.view
     container_view.Destroy()
     
-    # Filter VMs if name_filter provided
     if name_filter:
         vms = [vm for vm in vms if name_filter.lower() in vm.name.lower()]
     
@@ -67,7 +64,6 @@ def display_vm_info(vms):
         num_cpu = vm.config.hardware.numCPU
         memory_gb = vm.config.hardware.memoryMB / 1024
         
-        # Get IP address
         ip_address = "N/A"
         if vm.guest.ipAddress:
             ip_address = vm.guest.ipAddress
@@ -75,7 +71,6 @@ def display_vm_info(vms):
         print(f"{name:<30} {power_state:<15} {num_cpu:<8} {memory_gb:<12.2f} {ip_address:<15}")
 
 def main():
-    # Requirement 1: Read config from file
     print("Reading configuration from vconnect_starter.txt...")
     config = read_config('vconnect_starter.txt')
     vcenter_host = config['vcenter_host']
@@ -84,10 +79,8 @@ def main():
     print(f"vCenter Host: {vcenter_host}")
     print(f"Username: {username}")
     
-    # Get password
     password = getpass.getpass(f"\nEnter password for {username}: ")
     
-    # Connect to vCenter
     print("Connecting to vCenter...")
     s = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     s.verify_mode = ssl.CERT_NONE
@@ -97,10 +90,8 @@ def main():
                      pwd=password, 
                      sslContext=s)
     
-    # Requirement 2: Display session information
     get_session_info(si, vcenter_host)
     
-    # Main menu loop
     while True:
         print("\n=== VM Manager Menu ===")
         print("1. List all VMs")
@@ -136,3 +127,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
